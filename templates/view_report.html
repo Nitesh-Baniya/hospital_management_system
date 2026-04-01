@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-file-medical"></i> Medical Report Details</h2>
+    <p class="mb-0">View comprehensive medical report information</p>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Report #{{report.R_ID}}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-user"></i> Patient Information</h6>
+                        <p><strong>Name:</strong> {{report.Patient_FirstName}} {{report.Patient_LastName}}</p>
+                        <p><strong>Patient ID:</strong> {{report.P_ID}}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-user-md"></i> Doctor Information</h6>
+                        <p><strong>Name:</strong> Dr. {{report.Doctor_FirstName}} {{report.Doctor_LastName}}</p>
+                        <p><strong>Doctor ID:</strong> {{report.D_ID}}</p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-vial"></i> Test Information</h6>
+                        <p><strong>Test Type:</strong> {{report.Test_Type}}</p>
+                        <p><strong>Test Date:</strong> {{report.Report_Date}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-heartbeat"></i> Result Status</h6>
+                        <p>
+                            <span class="badge {% if report.Result == 'Normal' %}bg-success{% elif report.Result == 'Critical' %}bg-danger{% elif report.Result == 'Abnormal' %}bg-warning{% else %}bg-info{% endif %}">
+                                {{report.Result}}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-info-circle"></i> Report Actions</h6>
+                        <p>
+                            <button class="btn btn-sm btn-outline-primary" onclick="window.print()">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="window.history.back()">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </button>
+                        </p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <h6><i class="fas fa-notes-medical"></i> Medical Notes</h6>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> 
+                            This report shows a <strong>{{report.Result.lower()}}</strong> result for the {{report.Test_Type}} test conducted on {{report.Report_Date}}.
+                            {% if report.Result == 'Normal' %}
+                            No further action is required at this time.
+                            {% elif report.Result == 'Abnormal' %}
+                            Follow-up consultation recommended.
+                            {% elif report.Result == 'Critical' %}
+                            Immediate medical attention required.
+                            {% else %}
+                            Results are pending laboratory analysis.
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
