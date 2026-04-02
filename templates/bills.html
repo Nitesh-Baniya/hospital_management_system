@@ -1,0 +1,157 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-file-invoice-dollar"></i> Billing Management</h2>
+    <p class="mb-0">Manage patient bills and payment records</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Generate New Bill</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/add_bill" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="p_id" class="form-label">Patient ID</label>
+                        <input type="number" name="p_id" id="p_id" class="form-control" placeholder="Enter patient ID" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="amount" class="form-label">Amount ($)</label>
+                        <input type="number" step="0.01" name="amount" id="amount" class="form-control" placeholder="Enter amount" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="date" class="form-label">Bill Date</label>
+                        <input type="date" name="date" id="date" class="form-control" required>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Generate Bill
+                        </button>
+                        <button type="reset" class="btn btn-secondary ms-2">
+                            <i class="fas fa-undo"></i> Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Billing Records</h5>
+            </div>
+            <div class="card-body">
+                {% if bills %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag"></i> Bill ID</th>
+                                <th><i class="fas fa-user"></i> Patient Name</th>
+                                <th><i class="fas fa-dollar-sign"></i> Amount</th>
+                                <th><i class="fas fa-calendar"></i> Date</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                                <th><i class="fas fa-cogs"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in bills %}
+                            <tr>
+                                <td><span class="badge bg-primary">#{{b.B_ID}}</span></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-warning rounded-circle d-flex align-items-center justify-content-center text-white me-3" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <strong>{{b.First_Name}}</strong>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success fs-6">${{b.Amount}}</span>
+                                </td>
+                                <td>{{b.Bill_Date}}</td>
+                                <td>
+                                    <span class="badge {% if b.Status == 'Paid' %}bg-success{% else %}bg-warning{% endif %}">
+                                        <i class="fas {% if b.Status == 'Paid' %}fa-check-circle{% else %}fa-clock{% endif %}"></i> 
+                                        {{b.Status if b.Status else 'Pending'}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-primary" title="View Bill">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        {% if b.Status != 'Paid' %}
+                                        <a href="/mark_bill_paid/{{b.B_ID}}" class="btn btn-sm btn-outline-success" title="Mark Paid" onclick="return confirm('Mark this bill as paid?')">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        {% endif %}
+                                        <a href="/delete_bill/{{b.B_ID}}" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this bill?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-file-invoice-dollar fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No bills found</h5>
+                    <p class="text-muted">Start by generating a new bill using the form above.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-file-invoice-dollar fa-2x text-primary mb-3"></i>
+                <h5>Total Bills</h5>
+                <h3 class="text-primary">{{ bills|length if bills else 0 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-dollar-sign fa-2x text-success mb-3"></i>
+                <h5>Total Revenue</h5>
+                <h3 class="text-success">${{ bills|sum(attribute='Amount') if bills else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-clock fa-2x text-warning mb-3"></i>
+                <h5>Pending</h5>
+                <h3 class="text-warning">{{ bills|length if bills else 0 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-check-circle fa-2x text-info mb-3"></i>
+                <h5>Paid</h5>
+                <h3 class="text-info">0</h3>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
